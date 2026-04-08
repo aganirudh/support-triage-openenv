@@ -51,12 +51,16 @@ def health() -> dict[str, str]:
     return {"status": "ok"}
 
 
-@app.post("/reset", response_model=None)
-def reset(req: ResetRequest) -> dict[str, Any]:
-    """Reset the environment with a given task name and return the first observation."""
+@app.post("/reset")
+def reset(data: dict = None) -> dict:
+    """Reset the environment to a specific task."""
+    task_name = "easy"
+    if data and "task_name" in data:
+        task_name = data["task_name"]
+    
     with _lock:
         try:
-            obs = _env.reset(task_name=req.task_name)
+            obs = _env.reset(task_name=task_name)
         except ValueError as exc:
             raise HTTPException(status_code=400, detail=str(exc))
         return obs.model_dump()
