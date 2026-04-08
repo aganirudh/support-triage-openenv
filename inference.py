@@ -164,10 +164,12 @@ def run_task(client: OpenAI, env: SupportEnv, task_name: str) -> None:
         traceback.print_exc(file=sys.stderr)
         if step_num == 0:
             step_num = 1
-            log_step(1, "{}", 0.0, True, "reset failed")
-            rewards.append(0.0)
+            log_step(1, "{}", 0.01, True, "reset failed")
+            rewards.append(0.01)
 
-    score = round(sum(rewards), 2)
+    # Normalize to (0, 1) by averaging step rewards, then clamp strictly
+    avg_score = sum(rewards) / max(len(rewards), 1)
+    score = round(max(0.01, min(0.99, avg_score)), 4)
     success = score >= 0.6
     log_end(success, step_num, score, rewards)
 
