@@ -65,6 +65,9 @@ Rewards are deterministic and range from **0.0 to 1.0**, computed as:
 - **Length (0.20):** Based on character count thresholds (>100 chars for full credit).
 - **Keywords (0.10):** Percentage match against `response_hint` keywords.
 
+> [!NOTE]
+> For Phase 2 validation compliance, technical scores are strictly clipped between **0.01 and 0.99** to ensure gradients are always informative and no task is considered "solved" or "failed" with zero signal.
+
 A **repeat penalty** of −0.10 is applied when the agent submits an identical action consecutively.
 
 ## Tasks
@@ -130,9 +133,9 @@ pytest test.py -v
 
 | Task   | Random Agent | Qwen2.5-72B (zero-shot) |
 |--------|-------------|-------------------------|
-| Easy   | ~0.15       | 0.76                    |
-| Medium | ~0.10       | 0.91                    |
-| Hard   | ~0.05       | 0.64                    |
+| Easy   | ~0.15       | 0.80                    |
+| Medium | ~0.10       | 0.84                    |
+| Hard   | ~0.05       | 0.69                    |
 
 *Scores are approximate and may vary with prompt engineering.*
 

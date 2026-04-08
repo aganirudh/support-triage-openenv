@@ -95,13 +95,15 @@ class TestGrader:
         action = _perfect_easy_action()
         expected = {"category": "billing", "priority": "medium"}
         score = grade(action, expected)
-        assert score == 1.0
+        # Clipped to 0.99 for Phase 2 compliance
+        assert score == 0.99
 
     def test_grader_zero_score(self) -> None:
         action = _zero_score_action()
         expected = {"category": "billing", "priority": "medium"}
         score = grade(action, expected)
-        assert score == 0.0
+        # Clipped to 0.01 for Phase 2 compliance
+        assert score == 0.01
 
     def test_grader_partial_score(self) -> None:
         action = Action(

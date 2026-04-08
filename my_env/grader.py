@@ -53,14 +53,21 @@ def grade_with_breakdown(action: Action, expected: dict) -> tuple[float, dict]:
     
     resp = _response_score(action.response, expected.get("response_hint", ""))
 
-    total = min(cat + pri + esc + resp, 1.0)
     breakdown = {
         "category_score": cat,
         "priority_score": pri,
         "escalate_score": esc,
         "response_score": resp,
     }
-    return total, breakdown
+    
+    # Final score is the sum of all components
+    total_score = cat + pri + esc + resp
+    
+    # PHASE 2 COMPLIANCE: Ensure score is strictly between 0 and 1 (0.01 - 0.99)
+    # This prevents absolute 0.0 or 1.0 as required by the validator.
+    total_score = max(0.01, min(0.99, total_score))
+    
+    return total_score, breakdown
 
 
 def grade(action: Action, expected: dict) -> float:
