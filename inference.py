@@ -22,7 +22,8 @@ from my_env.models import Action
 # ---------------------------------------------------------------------------
 API_BASE_URL: str = os.getenv("API_BASE_URL", "https://router.huggingface.co/v1")
 MODEL_NAME: str = os.getenv("MODEL_NAME", "Qwen/Qwen2.5-72B-Instruct")
-HF_TOKEN: str | None = os.getenv("HF_TOKEN") or os.getenv("API_KEY")
+HF_TOKEN: str | None = os.getenv("HF_TOKEN")
+LOCAL_IMAGE_NAME: str | None = os.getenv("LOCAL_IMAGE_NAME")
 
 MAX_STEPS = 10
 ENV_NAME = "customer-support-routing"
@@ -179,10 +180,25 @@ def main() -> None:
             file=sys.stderr,
         )
 
+    # -----------------------------------------------------------------------
+    # Environment Initialization
+    # Handle the optional LOCAL_IMAGE_NAME from the OpenEnv spec
+    # -----------------------------------------------------------------------
+    image_name = os.getenv("LOCAL_IMAGE_NAME")
+    if image_name:
+        try:
+            from openenv import from_docker_image
+            env = from_docker_image(image_name)
+        except (ImportError, Exception) as e:
+            print(f"[ERROR] Failed to load from_docker_image: {e}", file=sys.stderr)
+            env = SupportEnv()
+    else:
+        env = SupportEnv()
+
     client = OpenAI(api_key=HF_TOKEN or "dummy", base_url=API_BASE_URL)
 
     for task_name in ("easy", "medium", "hard"):
-        run_task(client, SupportEnv(), task_name)
+        run_task(client, env, task_name)
 
 
 if __name__ == "__main__":
