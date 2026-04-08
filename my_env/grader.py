@@ -54,10 +54,10 @@ def grade_with_breakdown(action: Action, expected: dict) -> tuple[float, dict]:
     resp = _response_score(action.response, expected.get("response_hint", ""))
 
     breakdown = {
-        "category_score": cat,
-        "priority_score": pri,
-        "escalate_score": esc,
-        "response_score": resp,
+        "category_score": max(0.01, min(0.99, cat)),
+        "priority_score": max(0.01, min(0.99, pri)),
+        "escalate_score": max(0.01, min(0.99, esc)),
+        "response_score": max(0.01, min(0.99, resp)),
     }
     
     # Final score is the sum of all components
