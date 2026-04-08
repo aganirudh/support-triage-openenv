@@ -1,0 +1,77 @@
+# === openenv.yaml ===
+name: customer-support-routing
+version: "1.0.0"
+description: >
+  An OpenEnv-compliant environment for automated customer support ticket routing.
+  Agents must classify support tickets by category, assign priority levels, draft
+  responses, and decide on escalation — across easy, medium, and hard difficulty
+  tiers with realistic enterprise scenarios.
+author: Sriya-Rani-Khadanga
+entrypoint: my_env.env:SupportEnv
+
+reward:
+  range: [0.0, 1.0]
+  description: >
+    Weighted sum of category match (0.40), priority match (0.30), and response
+    quality (0.30). A repeat-action penalty of -0.10 is applied when the agent
+    submits an identical action consecutively.
+
+observation_space:
+  type: object
+  properties:
+    ticket_id:
+      type: string
+      description: Unique ticket identifier
+    subject:
+      type: string
+      description: Short summary of the customer issue
+    body:
+      type: string
+      description: Full text of the customer message
+    tier:
+      type: string
+      enum: [free, pro, enterprise]
+      description: Customer subscription tier
+    sentiment:
+      type: string
+      enum: [positive, neutral, negative, frustrated]
+      description: Detected sentiment of the message
+    step:
+      type: integer
+      description: Current step number in the episode
+    max_steps:
+      type: integer
+      description: Maximum allowed steps per episode
+
+action_space:
+  type: object
+  properties:
+    category:
+      type: string
+      enum: [billing, technical, general, security, escalation]
+      description: Predicted support category
+    priority:
+      type: string
+      enum: [low, medium, high, critical]
+      description: Assigned priority level
+    response:
+      type: string
+      description: Drafted reply to the customer (min 1 character)
+    escalate:
+      type: boolean
+      description: Whether the ticket should be escalated to a human agent
+
+tasks:
+  - name: easy
+    description: >
+      Clear single-issue tickets with obvious categories (billing, technical,
+      general). Straightforward sentiment and low ambiguity.
+  - name: medium
+    description: >
+      Ambiguous multi-issue tickets requiring judgment. Mixed sentiment, unclear
+      primary category, and feature-request overlap.
+  - name: hard
+    description: >
+      Enterprise-grade tickets with technical jargon, SLA implications,
+      escalation decisions, multiple nested issues, and frustrated tone.
+      Designed to challenge frontier models on prioritisation and escalation.
