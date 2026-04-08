@@ -60,8 +60,11 @@ class SupportEnv:
         # --- Repeat penalty ---
         action_json = action.model_dump_json()
         if action_json == self._last_action_json:
-            score = max(score - REPEAT_PENALTY, 0.0)
+            score = score - REPEAT_PENALTY
         self._last_action_json = action_json
+
+        # --- Strict (0, 1) clamp for Phase 2 compliance ---
+        score = max(0.01, min(0.99, score))
 
         self.cumulative_reward += score
 

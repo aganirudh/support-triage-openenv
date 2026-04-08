@@ -133,9 +133,9 @@ pytest test.py -v
 
 | Task   | Random Agent | Qwen2.5-72B (zero-shot) |
 |--------|-------------|-------------------------|
-| Easy   | ~0.15       | 0.80                    |
-| Medium | ~0.10       | 0.84                    |
-| Hard   | ~0.05       | 0.69                    |
+| Easy   | ~0.15       | 0.79                    |
+| Medium | ~0.10       | 0.87                    |
+| Hard   | ~0.05       | 0.65                    |
 
 *Scores are approximate and may vary with prompt engineering.*
 
