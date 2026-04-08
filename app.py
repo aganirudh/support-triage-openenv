@@ -93,8 +93,8 @@ def get_state() -> dict[str, Any]:
 # Main entry-point (for direct execution and `uv run server`)
 # ------------------------------------------------------------------
 
-def start_server() -> None:
-    """Entry point for the `server` script defined in pyproject.toml.
+def main() -> None:
+    """Entry point for the server.
 
     Called by:  uv run server
     """
@@ -104,4 +104,4 @@ def start_server() -> None:
 
 
 if __name__ == "__main__":
-    start_server()
+    main()

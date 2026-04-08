@@ -12,10 +12,11 @@ dependencies = [
     "pytest",
     "pyyaml",
     "httpx",
+    "openenv-core>=0.2.0",
 ]
 
 [project.scripts]
-server = "app:start_server"
+server = "app:main"
 
 [build-system]
 requires = ["hatchling"]
