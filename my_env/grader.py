@@ -3,8 +3,9 @@
 
 Scoring breakdown (total 1.0):
     category match   — 0.40  (exact string match)
-    priority match   — 0.30  (exact string match)
-    response quality — 0.30  (length-based thresholds)
+    priority match   — 0.20  (exact string match)
+    escalate match   — 0.10  (boolean match)
+    response content — 0.30  (length-based + keyword-based)
 """
 
 from __future__ import annotations
@@ -12,66 +13,56 @@ from __future__ import annotations
 from my_env.models import Action
 
 
-def _response_score(response: str) -> float:
-    """Score response quality purely by character length.
-
-    Thresholds:
-        < 20 chars  → 0.00
-        20–50 chars → 0.10
-        51–100 chars → 0.20
-        > 100 chars → 0.30
-    """
-    length = len(response)
-    if length > 100:
-        return 0.30
-    if length > 50:
-        return 0.20
-    if length >= 20:
-        return 0.10
-    return 0.00
-
-
-def grade(action: Action, expected: dict) -> float:
-    """Grade an action against the expected answer.
-
-    Parameters
-    ----------
-    action : Action
-        The agent's routing decision.
-    expected : dict
-        Must contain ``category`` (str) and ``priority`` (str) keys.
-
-    Returns
-    -------
-    float
-        A score between 0.0 and 1.0.
+def _response_score(response: str, hint: str = "") -> float:
+    """Score response based on length and keyword hints.
+    
+    Max score: 0.30
+    - Length credit: up to 0.20
+    - Keyword credit: up to 0.10
     """
     score = 0.0
-
-    # Category match — 0.40
-    if action.category == expected["category"]:
-        score += 0.40
-
-    # Priority match — 0.30
-    if action.priority == expected["priority"]:
-        score += 0.30
-
-    # Response quality — up to 0.30
-    score += _response_score(action.response)
-
-    return min(score, 1.0)
+    length = len(response)
+    
+    # Length credit
+    if length > 100:
+        score += 0.20
+    elif length > 50:
+        score += 0.15
+    elif length >= 20:
+        score += 0.10
+        
+    # Keyword credit (check for common hint words)
+    keywords = [w.lower() for w in hint.replace(",", "").replace(".", "").split() if len(w) > 3]
+    if keywords:
+        matches = sum(1 for k in keywords if k in response.lower())
+        match_ratio = matches / len(keywords)
+        score += min(match_ratio * 0.10, 0.10)
+    else:
+        # Fallback if no hint keywords: give automatic content credit if response is long
+        if length > 150:
+            score += 0.10
+            
+    return round(score, 2)
 
 
 def grade_with_breakdown(action: Action, expected: dict) -> tuple[float, dict]:
     """Return both the total score and a per-component breakdown."""
     cat = 0.40 if action.category == expected["category"] else 0.0
-    pri = 0.30 if action.priority == expected["priority"] else 0.0
-    resp = _response_score(action.response)
+    pri = 0.20 if action.priority == expected["priority"] else 0.0
+    esc = 0.10 if action.escalate == expected.get("escalate", False) else 0.0
+    
+    resp = _response_score(action.response, expected.get("response_hint", ""))
 
-    total = min(cat + pri + resp, 1.0)
+    total = min(cat + pri + esc + resp, 1.0)
     breakdown = {
         "category_score": cat,
         "priority_score": pri,
+        "escalate_score": esc,
         "response_score": resp,
     }
     return total, breakdown
+
+
+def grade(action: Action, expected: dict) -> float:
+    score, _ = grade_with_breakdown(action, expected)
+    return score

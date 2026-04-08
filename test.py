@@ -110,10 +110,10 @@ class TestGrader:
             response="Short reply here.",
             escalate=False,
         )
-        expected = {"category": "billing", "priority": "medium"}
+        expected = {"category": "billing", "priority": "medium", "escalate": False}
         score = grade(action, expected)
-        # category match (0.4) + priority miss (0.0) + response <20 chars (0.0)
-        assert score == pytest.approx(0.4)
+        # category match (0.4) + priority miss (0.0) + escalate match (0.1) + response <20 chars (0.0)
+        assert score == pytest.approx(0.5)
 
 
 class TestEpisode:

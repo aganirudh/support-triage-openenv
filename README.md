@@ -54,17 +54,16 @@ Frontier models often struggle with multi-issue tickets, SLA-aware prioritizatio
 
 Rewards are deterministic and range from **0.0 to 1.0**, computed as:
 
-| Component         | Weight | Criteria               |
-|--------------------|--------|------------------------|
-| Category match     | 0.40   | Exact string match     |
-| Priority match     | 0.30   | Exact string match     |
-| Response quality   | 0.30   | Length-based thresholds |
+| Component         | Weight | Criteria                      |
+|--------------------|--------|-------------------------------|
+| Category match     | 0.40   | Exact string match            |
+| Priority match     | 0.20   | Exact string match            |
+| Escalation match   | 0.10   | Boolean match                 |
+| Response content   | 0.30   | Length + Keyword matching     |
 
-**Response quality thresholds:**
-- `<20` chars → 0.00
-- `20–50` chars → 0.10
-- `51–100` chars → 0.20
-- `>100` chars → 0.30
+**Response quality criteria:**
+- **Length (0.20):** Based on character count thresholds (>100 chars for full credit).
+- **Keywords (0.10):** Percentage match against `response_hint` keywords.
 
 A **repeat penalty** of −0.10 is applied when the agent submits an identical action consecutively.
 
@@ -131,9 +130,9 @@ pytest test.py -v
 
 | Task   | Random Agent | Qwen2.5-72B (zero-shot) |
 |--------|-------------|-------------------------|
-| Easy   | ~0.15       | 0.87                    |
-| Medium | ~0.10       | 0.90                    |
-| Hard   | ~0.05       | 0.73                    |
+| Easy   | ~0.15       | 0.76                    |
+| Medium | ~0.10       | 0.91                    |
+| Hard   | ~0.05       | 0.64                    |
 
 *Scores are approximate and may vary with prompt engineering.*
 

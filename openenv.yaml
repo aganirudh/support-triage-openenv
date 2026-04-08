@@ -12,9 +12,9 @@ entrypoint: my_env.env:SupportEnv
 reward:
   range: [0.0, 1.0]
   description: >
-    Weighted sum of category match (0.40), priority match (0.30), and response
-    quality (0.30). A repeat-action penalty of -0.10 is applied when the agent
-    submits an identical action consecutively.
+    Weighted sum of category match (0.40), priority match (0.20), escalation
+    match (0.10), and response quality (0.30 - length and keyword based).
+    A repeats-action penalty of -0.10 is applied for identical consecutive actions.
 
 observation_space:
   type: object
